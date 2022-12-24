@@ -13,18 +13,28 @@ def main():
     digraph = graphviz.Digraph()
     digraph.renderer = "cairo"
     digraph.format = "png"
+    digraph.strict = True
     for i in paths:
         digraph.node(i, i)
 
+    edges = set()
     for file in paths:
         f = open(file, "r")
-        lines = f.readlines()
-        for l in lines:
-            for i in paths:
-                if l.strip() in i:
-                    digraph.edge(file, i) 
-        f.close()
-    print(digraph.body) 
+        for line in f:
+            if "<a " in line:
+                start_pos = line.find("href=")
+                end_pos = line.find('"', start_pos + 6)
+                val = line[start_pos+6:end_pos]
+                val = "milocraun.com/" + val
+                for i in paths:
+                    print(val, i)
+                    if val == i:
+                        edges.add((file, val))
+                        
+    print(edges)
+    for element in edges:
+        digraph.edge(element[0], element[1])
+    f.close()
     digraph.render()
 
 
@@ -34,7 +44,12 @@ def generate_paths(path):
     for entry in walk:
         for filename in entry[2]:
             if ".html" in filename:
-                file.append(entry[0] + "/" + filename)
+                #print(entry[0])
+                if entry[0][:-1] == "/":
+                    file.append(entry[0] + filename)
+                else:
+                    file.append(entry[0] + "/" + filename)
+                #print(entry[0] + "/" + filename)
     return file;
 
 if __name__ == "__main__":
