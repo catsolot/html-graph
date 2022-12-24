@@ -13,6 +13,7 @@ def main():
     digraph = graphviz.Digraph()
     digraph.renderer = "cairo"
     digraph.format = "png"
+    digraph.attr("graph", concentrate="true")
     digraph.strict = True
     for i in paths:
         digraph.node(i, i)
@@ -44,12 +45,10 @@ def generate_paths(path):
     for entry in walk:
         for filename in entry[2]:
             if ".html" in filename:
-                #print(entry[0])
                 if entry[0][:-1] == "/":
                     file.append(entry[0] + filename)
                 else:
                     file.append(entry[0] + "/" + filename)
-                #print(entry[0] + "/" + filename)
     return file;
 
 if __name__ == "__main__":
