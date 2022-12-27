@@ -4,25 +4,24 @@ import graphviz
 from html.parser import HTMLParser
 
 class HyperlinkParser(HTMLParser):
-    data = None
+    hyperlink = None
     def handle_starttag(self, tag, attrs):
         if tag == 'a':
-            self.data = attrs[0][1]
+            self.hyperlink = attrs[0][1]
         else:
-            self.data = None
+            self.hyperlink = None
 
 def main():
     if len(sys.argv) != 2:
         print("Usage: python main.py directory")
-        print("Please do not include a trailing / after directory")
         exit(1)
-    #if sys.argv[1][-1] == "/":
-    #    paths = generate_paths(sys.argv[1][0:-1])
-    #else:
-    #    paths = generate_paths(sys.argv[1])
-    paths = generate_paths(sys.argv[1])
-    for i in paths:
-        print(i)
+    if sys.argv[1][-1] == "/":
+        rootdir = sys.argv[1][0:-1]
+    else:
+        rootdir = sys.argv[1]
+    paths = generate_paths(rootdir)
+    #for i in paths:
+        #print(i)
     
     parser = HyperlinkParser()
     digraph = graphviz.Digraph(renderer="cairo", format="svg", graph_attr={"concentrate": "true"}, strict=True)
@@ -31,18 +30,21 @@ def main():
 
     edges = set()
     for file in paths:
-        f = open(file, "r")
-        for line in f:
+        fd = open(file, "r")
+        for line in fd:
             parser.feed(line)
-            if parser.data != None:
-                for i in paths:
-                    if "milocraun.com/" + parser.data == i and file != i:
-                        edges.add((file, "milocraun.com/" + parser.data))
-        f.close()
+            print(parser.hyperlink)
+            if parser.hyperlink != None:
+                #print(parser.hyperlink, file)
+                for target in paths:
+                    if "milocraun.com/" + parser.hyperlink == target and file != target:
+                        edges.add((file, "milocraun.com/" + parser.hyperlink))
+        fd.close()
+
 
     for element in edges:
         digraph.edge(element[0], element[1])
-    digraph.render(outfile=sys.argv[1] + "-graph.svg")
+    digraph.render(outfile=rootdir + "-graph.svg")
 
 def generate_paths(path):
     walk = os.walk(path)
@@ -50,6 +52,7 @@ def generate_paths(path):
     for entry in walk:
         for filename in entry[2]:
             if ".html" in filename:
+                print(entry[0], filename)
                 if entry[0][:-1] == "/":
                     file.append(entry[0] + filename)
                 else:
