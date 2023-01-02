@@ -33,10 +33,12 @@ def main():
         fd = open(file, "r")
         for line in fd:
             parser.feed(line)
-            print(parser.hyperlink)
+            #print(parser.hyperlink)
             if parser.hyperlink != None:
                 #print(parser.hyperlink, file)
                 for target in paths:
+                    # TODO: Fix parsing for subdirectories
+                    print(parser.hyperlink)
                     if "milocraun.com/" + parser.hyperlink == target and file != target:
                         edges.add((file, "milocraun.com/" + parser.hyperlink))
         fd.close()
@@ -52,7 +54,7 @@ def generate_paths(path):
     for entry in walk:
         for filename in entry[2]:
             if ".html" in filename:
-                print(entry[0], filename)
+                #print(entry[0], filename)
                 if entry[0][:-1] == "/":
                     file.append(entry[0] + filename)
                 else:
