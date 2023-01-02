@@ -36,13 +36,21 @@ def main():
             #print(parser.hyperlink)
             if parser.hyperlink != None:
                 #print(parser.hyperlink, file)
-                for target in paths:
-                    # TODO: Fix parsing for subdirectories
-                    print(parser.hyperlink)
-                    if "milocraun.com/" + parser.hyperlink == target and file != target:
-                        edges.add((file, "milocraun.com/" + parser.hyperlink))
+                link = handle_link(parser.hyperlink, file)
+                name = rootdir + "/" + link
+                print(name)
+                if name in paths and file != name:
+                    
+                    #print("Hyperlink: {} Target: {} File: {}".format(parser.hyperlink, name, file) )
+                    edges.add((file, name))
+               # for target in paths:
+               #     # TODO: Fix parsing for subdirectories
+               #     # if we find .. then we want to substitute it for
+               #     # the directory directly above.
+               #     print("Hyperlink: {} Target: {} File: {}".format(parser.hyperlink, target, file) )
         fd.close()
 
+    #print(edges)
 
     for element in edges:
         digraph.edge(element[0], element[1])
@@ -60,6 +68,27 @@ def generate_paths(path):
                 else:
                     file.append(entry[0] + "/" + filename)
     return file;
+
+def handle_link(link, path):
+    #print(link)
+    #print(link, path)
+    num = link.count("../")
+    if num == 0:
+        return link
+    sp = path.split("/")
+    li = link.split("/")
+    lin = li.pop()
+    fi = sp.pop()
+    sp.pop(0)
+    for i in range(num):
+        sp.pop()
+    res = ""
+    for i in sp:
+        res = res + i + "/"
+    res = res + lin 
+    print(res)
+    return res
+
 
 if __name__ == "__main__":
     main()
